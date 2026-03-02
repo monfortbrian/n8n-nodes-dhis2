@@ -1,0 +1,77 @@
+{
+	"name": "n8n-nodes-dhis2",
+	"version": "1.0.0",
+	"description": "n8n community node for DHIS2 integration. Push and pull aggregate data, manage organization units, track entities, and run analytics through the DHIS2 Web API.",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n",
+		"n8n-node",
+		"n8n-community-node",
+		"dhis2",
+		"dhis2-api",
+		"dhis2-integration",
+		"data-pipeline",
+		"data-automation",
+		"workflow-automation",
+		"analytics",
+		"organization-units",
+		"track-entities",
+		"aggregate-data",
+		"health-data",
+		"public-health",
+		"health-information-system",
+		"web-api",
+		"api-integration",
+		"etl",
+		"n8n-workflow",
+		"automation-node",
+		"node-package",
+		"typescript-node"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/monfortbrian/n8n-nodes-dhis2#readme",
+	"author": {
+		"name": "Monfort Brian N.",
+		"email": "monfortnkurunziza0@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/monfortbrian/n8n-nodes-dhis2.git"
+	},
+	"bugs": {
+		"url": "https://github.com/monfortbrian/n8n-nodes-dhis2/issues"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/Dhis2Api.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Dhis2/Dhis2.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"eslint": "9.32.0",
+		"n8n-workflow": "*",
+		"prettier": "3.6.2",
+		"release-it": "^19.0.4",
+		"typescript": "5.9.2"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
