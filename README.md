@@ -165,7 +165,7 @@ Contributions are welcome! Please:
 
 [MIT License](LICENSE)
 
-Copyright (c) 2026 Monfort N. Brian
+Copyright (c) 2026 [Monfort Brian N.](https://github.com/monfortbrian)
 
 
 ## Support
