@@ -30,6 +30,7 @@ export class Dhis2 implements INodeType {
 			},
 		],
 		properties: [
+			// ===== RESOURCE =====
 			{
 				displayName: 'Resource',
 				name: 'resource',
@@ -38,24 +39,39 @@ export class Dhis2 implements INodeType {
 				options: [
 					{ name: 'Analytics', value: 'analytics' },
 					{ name: 'Data Value Set', value: 'dataValueSet' },
+					{ name: 'Enrollment', value: 'enrollment' },
 					{ name: 'Event', value: 'event' },
+					{ name: 'FHIR', value: 'fhir' },
 					{ name: 'Organisation Unit', value: 'organisationUnit' },
 					{ name: 'Program', value: 'program' },
 					{ name: 'Tracked Entity', value: 'trackedEntity' },
 				],
 				default: 'dataValueSet',
 			},
+
 			// ===== OPERATIONS =====
 			{
 				displayName: 'Operation',
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['dataValueSet'],
+				displayOptions: { show: { resource: ['analytics'] } },
+				options: [
+					{
+						name: 'Query',
+						value: 'query',
+						description: 'Query analytics data',
+						action: 'Query analytics',
 					},
-				},
+				],
+				default: 'query',
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: { show: { resource: ['dataValueSet'] } },
 				options: [
 					{
 						name: 'Get',
@@ -77,83 +93,29 @@ export class Dhis2 implements INodeType {
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['organisationUnit'],
-					},
-				},
+				displayOptions: { show: { resource: ['enrollment'] } },
 				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Enroll a tracked entity into a program',
+						action: 'Create an enrollment',
+					},
 					{
 						name: 'Get',
 						value: 'get',
-						description: 'Get an organisation unit by ID',
-						action: 'Get an organisation unit',
-					},
-					{
-						name: 'Get Many',
-						value: 'getAll',
-						description: 'Get many organisation units',
-						action: 'Get many organisation units',
+						description: 'Get an enrollment by ID',
+						action: 'Get an enrollment',
 					},
 				],
-				default: 'get',
+				default: 'create',
 			},
 			{
 				displayName: 'Operation',
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['analytics'],
-					},
-				},
-				options: [
-					{
-						name: 'Query',
-						value: 'query',
-						description: 'Query analytics data',
-						action: 'Query analytics',
-					},
-				],
-				default: 'query',
-			},
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['trackedEntity'],
-					},
-				},
-				options: [
-					{
-						name: 'Get',
-						value: 'get',
-						description: 'Get a tracked entity by ID',
-						action: 'Get a tracked entity',
-					},
-					{
-						name: 'Get Many',
-						value: 'getAll',
-						description: 'Get many tracked entities',
-						action: 'Get many tracked entities',
-					},
-				],
-				default: 'get',
-			},
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['event'],
-					},
-				},
+				displayOptions: { show: { resource: ['event'] } },
 				options: [
 					{
 						name: 'Get',
@@ -175,11 +137,63 @@ export class Dhis2 implements INodeType {
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['program'],
+				displayOptions: { show: { resource: ['fhir'] } },
+				options: [
+					{
+						name: 'Read Patient',
+						value: 'readPatient',
+						description: 'Read a FHIR Patient by ID',
+						action: 'Read a FHIR patient',
 					},
-				},
+					{
+						name: 'Search Patients',
+						value: 'searchPatients',
+						description: 'Search FHIR Patients by identifier or name',
+						action: 'Search FHIR patients',
+					},
+					{
+						name: 'Create Observation',
+						value: 'createObservation',
+						description: 'Post a FHIR Observation to DHIS2',
+						action: 'Create a FHIR observation',
+					},
+					{
+						name: 'Search Observations',
+						value: 'searchObservations',
+						description: 'Search FHIR Observations by patient or code',
+						action: 'Search FHIR observations',
+					},
+				],
+				default: 'readPatient',
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: { show: { resource: ['organisationUnit'] } },
+				options: [
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get an organisation unit by ID',
+						action: 'Get an organisation unit',
+					},
+					{
+						name: 'Get Many',
+						value: 'getAll',
+						description: 'Get many organisation units',
+						action: 'Get many organisation units',
+					},
+				],
+				default: 'get',
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: { show: { resource: ['program'] } },
 				options: [
 					{
 						name: 'Get',
@@ -196,206 +210,226 @@ export class Dhis2 implements INodeType {
 				],
 				default: 'get',
 			},
-			// ===== DATA VALUE SET FIELDS =====
 			{
-				displayName: 'Data Set ID',
-				name: 'dataSetId',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['dataValueSet'],
-						operation: ['get'],
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: { show: { resource: ['trackedEntity'] } },
+				options: [
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a tracked entity by ID',
+						action: 'Get a tracked entity',
 					},
-				},
-				default: '',
-				description: 'The ID of the data set',
-			},
-			{
-				displayName: 'Organisation Unit ID',
-				name: 'orgUnitId',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['dataValueSet'],
-						operation: ['get'],
+					{
+						name: 'Get Many',
+						value: 'getAll',
+						description: 'Get many tracked entities',
+						action: 'Get many tracked entities',
 					},
-				},
-				default: '',
-				description: 'The ID of the organisation unit',
+				],
+				default: 'get',
 			},
-			{
-				displayName: 'Period',
-				name: 'period',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['dataValueSet'],
-						operation: ['get'],
-					},
-				},
-				default: '',
-				placeholder: '202501',
-				description: 'The period in DHIS2 format (e.g. 202501 for January 2025, 2025Q1 for Q1 2025)',
-			},
-			{
-				displayName: 'Data Values (JSON)',
-				name: 'dataValues',
-				type: 'json',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['dataValueSet'],
-						operation: ['push'],
-					},
-				},
-				default: '',
-				description: 'The data value set payload as JSON. Must include dataSet, period, orgUnit, and dataValues array.',
-			},
+
 			// ===== ANALYTICS FIELDS =====
 			{
 				displayName: 'Dimension',
 				name: 'dimension',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['analytics'],
-						operation: ['query'],
-					},
-				},
+				displayOptions: { show: { resource: ['analytics'], operation: ['query'] } },
 				default: '',
 				placeholder: 'dx:Uvn6LCg7dVU;ou:ImspTQPwCqd;pe:LAST_12_MONTHS',
-				description: 'Analytics dimensions (e.g. dx:DATA_ELEMENT_ID;ou:ORG_UNIT_ID;pe:PERIOD)',
+				description: 'Semicolon-separated analytics dimensions. Must include dx (data element/indicator), ou (org unit), and pe (period).',
 			},
-			// ===== ORG UNIT FIELDS =====
+
+			// ===== DATA VALUE SET FIELDS =====
 			{
-				displayName: 'Organisation Unit ID',
-				name: 'organisationUnitId',
+				displayName: 'Data Set ID',
+				name: 'dataSetId',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['organisationUnit'],
-						operation: ['get'],
-					},
-				},
+				displayOptions: { show: { resource: ['dataValueSet'], operation: ['get'] } },
 				default: '',
-				description: 'The ID of the organisation unit',
-			},
-			// ===== TRACKED ENTITY FIELDS =====
-			{
-				displayName: 'Tracked Entity ID',
-				name: 'trackedEntityId',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['trackedEntity'],
-						operation: ['get'],
-					},
-				},
-				default: '',
-				description: 'The ID of the tracked entity',
-			},
-			{
-				displayName: 'Tracked Entity Type ID',
-				name: 'trackedEntityTypeId',
-				type: 'string',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['trackedEntity'],
-						operation: ['getAll'],
-					},
-				},
-				default: '',
-				description: 'The ID of the tracked entity type',
+				description: 'The UID of the data set',
 			},
 			{
 				displayName: 'Organisation Unit ID',
-				name: 'trackedEntityOrgUnit',
+				name: 'orgUnitId',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['trackedEntity'],
-						operation: ['getAll'],
-					},
-				},
+				displayOptions: { show: { resource: ['dataValueSet'], operation: ['get'] } },
 				default: '',
-				description: 'The ID of the organisation unit to filter tracked entities by',
+				description: 'The UID of the organisation unit',
 			},
+			{
+				displayName: 'Period',
+				name: 'period',
+				type: 'string',
+				required: true,
+				displayOptions: { show: { resource: ['dataValueSet'], operation: ['get'] } },
+				default: '',
+				placeholder: '202501',
+				description: 'Period in DHIS2 format (e.g. 202501, 2025Q1)',
+			},
+			{
+				displayName: 'Data Values (JSON)',
+				name: 'dataValues',
+				type: 'json',
+				required: true,
+				displayOptions: { show: { resource: ['dataValueSet'], operation: ['push'] } },
+				default: '',
+				description: 'Full data value set payload. Must include dataSet, period, orgUnit, and dataValues array.',
+			},
+
+			// ===== ENROLLMENT FIELDS =====
+			{
+				displayName: 'Enrollment Payload (JSON)',
+				name: 'enrollmentPayload',
+				type: 'json',
+				required: true,
+				displayOptions: { show: { resource: ['enrollment'], operation: ['create'] } },
+				default: '{\n  "trackedEntity": "TEI_UID",\n  "orgUnit": "ORG_UNIT_UID",\n  "program": "PROGRAM_UID",\n  "enrolledAt": "2024-01-01",\n  "occurredAt": "2024-01-01"\n}',
+				description: 'Enrollment payload. Must include trackedEntity, orgUnit, program, enrolledAt.',
+			},
+			{
+				displayName: 'Enrollment ID',
+				name: 'enrollmentId',
+				type: 'string',
+				required: true,
+				displayOptions: { show: { resource: ['enrollment'], operation: ['get'] } },
+				default: '',
+				description: 'The UID of the enrollment',
+			},
+
 			// ===== EVENT FIELDS =====
 			{
 				displayName: 'Event ID',
 				name: 'eventId',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['event'],
-						operation: ['get'],
-					},
-				},
+				displayOptions: { show: { resource: ['event'], operation: ['get'] } },
 				default: '',
-				description: 'The ID of the event',
+				description: 'The UID of the event',
 			},
 			{
 				displayName: 'Program ID',
 				name: 'eventProgramId',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['event'],
-						operation: ['getAll'],
-					},
-				},
+				displayOptions: { show: { resource: ['event'], operation: ['getAll'] } },
 				default: '',
-				description: 'The ID of the program to filter events by',
+				description: 'The UID of the program to filter events by',
 			},
 			{
 				displayName: 'Organisation Unit ID',
 				name: 'eventOrgUnit',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['event'],
-						operation: ['getAll'],
-					},
-				},
+				displayOptions: { show: { resource: ['event'], operation: ['getAll'] } },
 				default: '',
-				description: 'The ID of the organisation unit to filter events by',
+				description: 'The UID of the organisation unit to filter events by',
 			},
+
+			// ===== FHIR FIELDS =====
+			{
+				displayName: 'Patient ID',
+				name: 'fhirPatientId',
+				type: 'string',
+				required: true,
+				displayOptions: { show: { resource: ['fhir'], operation: ['readPatient'] } },
+				default: '',
+				description: 'FHIR Patient resource ID (maps to DHIS2 tracked entity UID)',
+			},
+			{
+				displayName: 'Search Parameter',
+				name: 'fhirPatientSearch',
+				type: 'string',
+				required: true,
+				displayOptions: { show: { resource: ['fhir'], operation: ['searchPatients'] } },
+				default: '',
+				placeholder: 'identifier=PATIENT_ID',
+				description: 'FHIR search param as key=value (e.g. identifier=ABC123 or name=John)',
+			},
+			{
+				displayName: 'Observation (JSON)',
+				name: 'fhirObservation',
+				type: 'json',
+				required: true,
+				displayOptions: { show: { resource: ['fhir'], operation: ['createObservation'] } },
+				default: '{\n  "resourceType": "Observation",\n  "status": "final",\n  "code": { "coding": [{ "system": "http://loinc.org", "code": "8480-6" }] },\n  "subject": { "reference": "Patient/PATIENT_ID" },\n  "valueQuantity": { "value": 120, "unit": "mmHg" }\n}',
+				description: 'Full FHIR Observation resource as JSON',
+			},
+			{
+				displayName: 'Patient Reference',
+				name: 'fhirObsPatient',
+				type: 'string',
+				required: true,
+				displayOptions: { show: { resource: ['fhir'], operation: ['searchObservations'] } },
+				default: '',
+				placeholder: 'Patient/PATIENT_ID',
+				description: 'Filter observations by patient reference (e.g. Patient/ABC123)',
+			},
+
+			// ===== ORGANISATION UNIT FIELDS =====
+			{
+				displayName: 'Organisation Unit ID',
+				name: 'organisationUnitId',
+				type: 'string',
+				required: true,
+				displayOptions: { show: { resource: ['organisationUnit'], operation: ['get'] } },
+				default: '',
+				description: 'The UID of the organisation unit',
+			},
+
 			// ===== PROGRAM FIELDS =====
 			{
 				displayName: 'Program ID',
 				name: 'programId',
 				type: 'string',
 				required: true,
-				displayOptions: {
-					show: {
-						resource: ['program'],
-						operation: ['get'],
-					},
-				},
+				displayOptions: { show: { resource: ['program'], operation: ['get'] } },
 				default: '',
-				description: 'The ID of the program',
+				description: 'The UID of the program',
 			},
+
+			// ===== TRACKED ENTITY FIELDS =====
+			{
+				displayName: 'Tracked Entity ID',
+				name: 'trackedEntityId',
+				type: 'string',
+				required: true,
+				displayOptions: { show: { resource: ['trackedEntity'], operation: ['get'] } },
+				default: '',
+				description: 'The UID of the tracked entity',
+			},
+			{
+				displayName: 'Tracked Entity Type ID',
+				name: 'trackedEntityTypeId',
+				type: 'string',
+				required: true,
+				displayOptions: { show: { resource: ['trackedEntity'], operation: ['getAll'] } },
+				default: '',
+				description: 'The UID of the tracked entity type',
+			},
+			{
+				displayName: 'Organisation Unit ID',
+				name: 'trackedEntityOrgUnit',
+				type: 'string',
+				required: true,
+				displayOptions: { show: { resource: ['trackedEntity'], operation: ['getAll'] } },
+				default: '',
+				description: 'The UID of the organisation unit to filter tracked entities by',
+			},
+
 			// ===== PAGINATION =====
 			{
 				displayName: 'Return All',
 				name: 'returnAll',
 				type: 'boolean',
-				displayOptions: {
-					show: {
-						operation: ['getAll'],
-					},
-				},
+				displayOptions: { show: { operation: ['getAll'] } },
 				default: false,
 				description: 'Whether to return all results or only up to a given limit',
 			},
@@ -403,16 +437,8 @@ export class Dhis2 implements INodeType {
 				displayName: 'Limit',
 				name: 'limit',
 				type: 'number',
-				displayOptions: {
-					show: {
-						operation: ['getAll'],
-						returnAll: [false],
-					},
-				},
-				typeOptions: {
-					minValue: 1,
-					maxValue: 1000,
-				},
+				displayOptions: { show: { operation: ['getAll'], returnAll: [false] } },
+				typeOptions: { minValue: 1, maxValue: 1000 },
 				default: 50,
 				description: 'Max number of results to return',
 			},
@@ -436,39 +462,147 @@ export class Dhis2 implements INodeType {
 				const qs: IDataObject = {};
 				let body: IDataObject | undefined;
 
-				// --- Data Value Sets ---
-				if (resource === 'dataValueSet') {
-					if (operation === 'get') {
-						const dataSetId = this.getNodeParameter('dataSetId', i) as string;
-						const orgUnitId = this.getNodeParameter('orgUnitId', i) as string;
-						const period = this.getNodeParameter('period', i) as string;
-						endpoint = '/api/dataValueSets.json';
-						qs.dataSet = dataSetId;
-						qs.orgUnit = orgUnitId;
-						qs.period = period;
-					} else if (operation === 'push') {
-						const dataValues = this.getNodeParameter('dataValues', i) as string;
-						endpoint = '/api/dataValueSets.json';
-						method = 'POST';
-						body = JSON.parse(typeof dataValues === 'string' ? dataValues : JSON.stringify(dataValues)) as IDataObject;
-					}
-				}
-
-				// --- Analytics ---
+				// ----------------------------------------------------------------
+				// Analytics
+				// ----------------------------------------------------------------
 				if (resource === 'analytics') {
 					if (operation === 'query') {
 						const dimension = this.getNodeParameter('dimension', i) as string;
 						endpoint = '/api/analytics.json';
-						const dimensions = dimension.split(';');
-						for (const dim of dimensions) {
-							qs[`dimension`] = qs[`dimension`]
-								? `${qs[`dimension`]}&dimension=${dim}`
-								: dim;
+						// DHIS2 requires repeated dimension params: ?dimension=dx:X&dimension=ou:Y
+						// Passing an array causes httpRequest to serialize correctly.
+						qs['dimension'] = dimension.split(';').map((d) => d.trim()).filter(Boolean);
+					}
+				}
+
+				// ----------------------------------------------------------------
+				// Data Value Set
+				// ----------------------------------------------------------------
+				if (resource === 'dataValueSet') {
+					if (operation === 'get') {
+						endpoint = '/api/dataValueSets.json';
+						qs.dataSet = this.getNodeParameter('dataSetId', i) as string;
+						qs.orgUnit = this.getNodeParameter('orgUnitId', i) as string;
+						qs.period = this.getNodeParameter('period', i) as string;
+					} else if (operation === 'push') {
+						const raw = this.getNodeParameter('dataValues', i) as string;
+						endpoint = '/api/dataValueSets.json';
+						method = 'POST';
+						body = JSON.parse(typeof raw === 'string' ? raw : JSON.stringify(raw)) as IDataObject;
+					}
+				}
+
+				// ----------------------------------------------------------------
+				// Enrollment
+				// ----------------------------------------------------------------
+				if (resource === 'enrollment') {
+					if (operation === 'create') {
+						const raw = this.getNodeParameter('enrollmentPayload', i) as string;
+						endpoint = '/api/tracker';
+						method = 'POST';
+						body = {
+							enrollments: [
+								JSON.parse(typeof raw === 'string' ? raw : JSON.stringify(raw)),
+							],
+						} as IDataObject;
+					} else if (operation === 'get') {
+						const enrollmentId = this.getNodeParameter('enrollmentId', i) as string;
+						endpoint = `/api/tracker/enrollments/${enrollmentId}`;
+					}
+				}
+
+				// ----------------------------------------------------------------
+				// Event
+				// ----------------------------------------------------------------
+				if (resource === 'event') {
+					if (operation === 'get') {
+						const eventId = this.getNodeParameter('eventId', i) as string;
+						endpoint = `/api/tracker/events/${eventId}`;
+					} else if (operation === 'getAll') {
+						endpoint = '/api/tracker/events';
+						qs.program = this.getNodeParameter('eventProgramId', i) as string;
+						qs.orgUnit = this.getNodeParameter('eventOrgUnit', i) as string;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						if (!returnAll) {
+							qs.pageSize = this.getNodeParameter('limit', i) as number;
 						}
 					}
 				}
 
-				// --- Organisation Units ---
+				// ----------------------------------------------------------------
+				// FHIR - hits /fhir/* separately, returns early to skip shared handler
+				// ----------------------------------------------------------------
+				if (resource === 'fhir') {
+					const fhirBase = `${baseUrl}/fhir`;
+
+					if (operation === 'readPatient') {
+						const patientId = this.getNodeParameter('fhirPatientId', i) as string;
+						const response = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'dhis2Api',
+							{ method: 'GET', url: `${fhirBase}/Patient/${patientId}`, json: true },
+						);
+						returnData.push({ json: response as IDataObject });
+						continue;
+					}
+
+					if (operation === 'searchPatients') {
+						const searchParam = this.getNodeParameter('fhirPatientSearch', i) as string;
+						const [paramKey, paramValue] = searchParam.split('=');
+						const response = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'dhis2Api',
+							{
+								method: 'GET',
+								url: `${fhirBase}/Patient`,
+								qs: { [paramKey.trim()]: paramValue?.trim() },
+								json: true,
+							},
+						);
+						const bundle = response as IDataObject;
+						const entries = (bundle.entry as IDataObject[]) ?? [];
+						returnData.push(...entries.map((e) => ({ json: (e.resource as IDataObject) ?? e })));
+						continue;
+					}
+
+					if (operation === 'createObservation') {
+						const raw = this.getNodeParameter('fhirObservation', i) as string;
+						const response = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'dhis2Api',
+							{
+								method: 'POST',
+								url: `${fhirBase}/Observation`,
+								body: JSON.parse(typeof raw === 'string' ? raw : JSON.stringify(raw)),
+								json: true,
+							},
+						);
+						returnData.push({ json: response as IDataObject });
+						continue;
+					}
+
+					if (operation === 'searchObservations') {
+						const patient = this.getNodeParameter('fhirObsPatient', i) as string;
+						const response = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'dhis2Api',
+							{
+								method: 'GET',
+								url: `${fhirBase}/Observation`,
+								qs: { patient },
+								json: true,
+							},
+						);
+						const bundle = response as IDataObject;
+						const entries = (bundle.entry as IDataObject[]) ?? [];
+						returnData.push(...entries.map((e) => ({ json: (e.resource as IDataObject) ?? e })));
+						continue;
+					}
+				}
+
+				// ----------------------------------------------------------------
+				// Organisation Unit
+				// ----------------------------------------------------------------
 				if (resource === 'organisationUnit') {
 					if (operation === 'get') {
 						const orgUnitId = this.getNodeParameter('organisationUnitId', i) as string;
@@ -479,53 +613,16 @@ export class Dhis2 implements INodeType {
 						qs.fields = 'id,displayName,level,parent[id,displayName]';
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
+							qs.pageSize = this.getNodeParameter('limit', i) as number;
 						} else {
 							qs.paging = 'false';
 						}
 					}
 				}
 
-				// --- Tracked Entities ---
-				if (resource === 'trackedEntity') {
-					if (operation === 'get') {
-						const trackedEntityId = this.getNodeParameter('trackedEntityId', i) as string;
-						endpoint = `/api/tracker/trackedEntities/${trackedEntityId}`;
-					} else if (operation === 'getAll') {
-						const typeId = this.getNodeParameter('trackedEntityTypeId', i) as string;
-						const orgUnit = this.getNodeParameter('trackedEntityOrgUnit', i) as string;
-						endpoint = '/api/tracker/trackedEntities';
-						qs.trackedEntityType = typeId;
-						qs.orgUnit = orgUnit;
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
-						}
-					}
-				}
-
-				// --- Events ---
-				if (resource === 'event') {
-					if (operation === 'get') {
-						const eventId = this.getNodeParameter('eventId', i) as string;
-						endpoint = `/api/tracker/events/${eventId}`;
-					} else if (operation === 'getAll') {
-						const programId = this.getNodeParameter('eventProgramId', i) as string;
-						const orgUnit = this.getNodeParameter('eventOrgUnit', i) as string;
-						endpoint = '/api/tracker/events';
-						qs.program = programId;
-						qs.orgUnit = orgUnit;
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
-						}
-					}
-				}
-
-				// --- Programs ---
+				// ----------------------------------------------------------------
+				// Program
+				// ----------------------------------------------------------------
 				if (resource === 'program') {
 					if (operation === 'get') {
 						const programId = this.getNodeParameter('programId', i) as string;
@@ -536,14 +633,34 @@ export class Dhis2 implements INodeType {
 						qs.fields = 'id,displayName,programType,trackedEntityType[id,displayName]';
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
+							qs.pageSize = this.getNodeParameter('limit', i) as number;
 						} else {
 							qs.paging = 'false';
 						}
 					}
 				}
 
+				// ----------------------------------------------------------------
+				// Tracked Entity
+				// ----------------------------------------------------------------
+				if (resource === 'trackedEntity') {
+					if (operation === 'get') {
+						const trackedEntityId = this.getNodeParameter('trackedEntityId', i) as string;
+						endpoint = `/api/tracker/trackedEntities/${trackedEntityId}`;
+					} else if (operation === 'getAll') {
+						endpoint = '/api/tracker/trackedEntities';
+						qs.trackedEntityType = this.getNodeParameter('trackedEntityTypeId', i) as string;
+						qs.orgUnit = this.getNodeParameter('trackedEntityOrgUnit', i) as string;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						if (!returnAll) {
+							qs.pageSize = this.getNodeParameter('limit', i) as number;
+						}
+					}
+				}
+
+				// ----------------------------------------------------------------
+				// Shared HTTP handler (all non-FHIR resources)
+				// ----------------------------------------------------------------
 				const response = await this.helpers.httpRequestWithAuthentication.call(
 					this,
 					'dhis2Api',
@@ -556,21 +673,17 @@ export class Dhis2 implements INodeType {
 					},
 				);
 
-				// Handle DHIS2 list responses
+				// Unwrap known DHIS2 list envelopes
 				if (response.organisationUnits) {
-					const items2 = response.organisationUnits as IDataObject[];
-					returnData.push(...items2.map((item: IDataObject) => ({ json: item })));
+					returnData.push(...(response.organisationUnits as IDataObject[]).map((item: IDataObject) => ({ json: item })));
 				} else if (response.programs) {
-					const items2 = response.programs as IDataObject[];
-					returnData.push(...items2.map((item: IDataObject) => ({ json: item })));
+					returnData.push(...(response.programs as IDataObject[]).map((item: IDataObject) => ({ json: item })));
 				} else if (response.instances) {
-					const items2 = response.instances as IDataObject[];
-					returnData.push(...items2.map((item: IDataObject) => ({ json: item })));
+					returnData.push(...(response.instances as IDataObject[]).map((item: IDataObject) => ({ json: item })));
 				} else if (response.dataValues) {
-					const items2 = response.dataValues as IDataObject[];
-					returnData.push(...items2.map((item: IDataObject) => ({ json: item })));
+					returnData.push(...(response.dataValues as IDataObject[]).map((item: IDataObject) => ({ json: item })));
 				} else if (response.rows) {
-					// Analytics response
+					// Analytics: zip headers + rows into objects
 					const headers = response.headers as Array<{ name: string }>;
 					const rows = response.rows as string[][];
 					for (const row of rows) {
@@ -585,9 +698,9 @@ export class Dhis2 implements INodeType {
 				}
 			} catch (error) {
 				if (this.continueOnFail()) {
-					const errorMessage =
-						error instanceof Error ? error.message : 'Unknown error';
-					returnData.push({ json: { error: errorMessage } });
+					returnData.push({
+						json: { error: error instanceof Error ? error.message : 'Unknown error' },
+					});
 					continue;
 				}
 				throw new NodeOperationError(
