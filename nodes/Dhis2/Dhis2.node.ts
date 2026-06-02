@@ -312,6 +312,15 @@ export class Dhis2 implements INodeType {
 
 			// ===== EVENT FIELDS =====
 			{
+				displayName: 'Event Payload (JSON)',
+				name: 'eventPayload',
+				type: 'json',
+				required: true,
+				displayOptions: { show: { resource: ['event'], operation: ['create'] } },
+				default: '{\n  "program": "PROGRAM_UID",\n  "programStage": "PROGRAM_STAGE_UID",\n  "orgUnit": "ORG_UNIT_UID",\n  "occurredAt": "2024-01-01",\n  "status": "COMPLETED",\n  "dataValues": [\n    { "dataElement": "DATA_ELEMENT_UID", "value": "value" }\n  ]\n}',
+				description: 'Tracker event payload. Must include program, programStage, orgUnit, occurredAt. Optionally include enrollment and dataValues.',
+			},
+			{
 				displayName: 'Event ID',
 				name: 'eventId',
 				type: 'string',
@@ -470,14 +479,38 @@ export class Dhis2 implements INodeType {
 
 				// ----------------------------------------------------------------
 				// Analytics
+				// n8n serializes arrays as dimension[0]=x&dimension[1]=y which
+				// DHIS2 rejects. Build the query string manually to get repeated
+				// keys: dimension=dx:X&dimension=ou:Y&dimension=pe:Z
 				// ----------------------------------------------------------------
 				if (resource === 'analytics') {
 					if (operation === 'query') {
 						const dimension = this.getNodeParameter('dimension', i) as string;
-						endpoint = '/api/analytics.json';
-						// DHIS2 requires repeated dimension params: ?dimension=dx:X&dimension=ou:Y
-						// Passing an array causes httpRequest to serialize correctly.
-						qs['dimension'] = dimension.split(';').map((d) => d.trim()).filter(Boolean);
+						const dims = dimension.split(';').map((d) => d.trim()).filter(Boolean);
+						const queryString = dims.map((d) => `dimension=${encodeURIComponent(d)}`).join('&');
+						const response = await this.helpers.httpRequestWithAuthentication.call(
+							this,
+							'dhis2Api',
+							{
+								method: 'GET',
+								url: `${baseUrl}/api/analytics.json?${queryString}`,
+								json: true,
+							},
+						);
+						if (response.rows) {
+							const headers = response.headers as Array<{ name: string }>;
+							const rows = response.rows as string[][];
+							for (const row of rows) {
+								const obj: IDataObject = {};
+								for (let j = 0; j < headers.length; j++) {
+									obj[headers[j].name] = row[j];
+								}
+								returnData.push({ json: obj });
+							}
+						} else {
+							returnData.push({ json: response as IDataObject });
+						}
+						continue;
 					}
 				}
 
@@ -521,7 +554,16 @@ export class Dhis2 implements INodeType {
 				// Event
 				// ----------------------------------------------------------------
 				if (resource === 'event') {
-					if (operation === 'get') {
+					if (operation === 'create') {
+						const raw = this.getNodeParameter('eventPayload', i) as string;
+						endpoint = '/api/tracker';
+						method = 'POST';
+						body = {
+							events: [
+								JSON.parse(typeof raw === 'string' ? raw : JSON.stringify(raw)),
+							],
+						} as IDataObject;
+					} else if (operation === 'get') {
 						const eventId = this.getNodeParameter('eventId', i) as string;
 						endpoint = `/api/tracker/events/${eventId}`;
 					} else if (operation === 'getAll') {
@@ -665,7 +707,7 @@ export class Dhis2 implements INodeType {
 				}
 
 				// ----------------------------------------------------------------
-				// Shared HTTP handler (all non-FHIR resources)
+				// Shared HTTP handler (all non-FHIR, non-analytics resources)
 				// ----------------------------------------------------------------
 				const response = await this.helpers.httpRequestWithAuthentication.call(
 					this,
@@ -688,17 +730,6 @@ export class Dhis2 implements INodeType {
 					returnData.push(...(response.instances as IDataObject[]).map((item: IDataObject) => ({ json: item })));
 				} else if (response.dataValues) {
 					returnData.push(...(response.dataValues as IDataObject[]).map((item: IDataObject) => ({ json: item })));
-				} else if (response.rows) {
-					// Analytics: zip headers + rows into objects
-					const headers = response.headers as Array<{ name: string }>;
-					const rows = response.rows as string[][];
-					for (const row of rows) {
-						const obj: IDataObject = {};
-						for (let j = 0; j < headers.length; j++) {
-							obj[headers[j].name] = row[j];
-						}
-						returnData.push({ json: obj });
-					}
 				} else {
 					returnData.push({ json: response as IDataObject });
 				}
