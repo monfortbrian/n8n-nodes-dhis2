@@ -118,6 +118,12 @@ export class Dhis2 implements INodeType {
 				displayOptions: { show: { resource: ['event'] } },
 				options: [
 					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a tracker event',
+						action: 'Create an event',
+					},
+					{
 						name: 'Get',
 						value: 'get',
 						description: 'Get an event by ID',

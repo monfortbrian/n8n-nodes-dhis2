@@ -7,14 +7,21 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [1.1.0] - 2026-06-02
+## [1.2.0] - 2026-06-02
 
 ### Fixed
-- Analytics `dimension` query parameter was being serialized as a single mangled string instead of repeated params. DHIS2 Analytics API requires `?dimension=dx:X&dimension=ou:Y&dimension=pe:Z`. Fixed by passing dimension values as an array to the HTTP client.
+- Analytics `dimension` serialization: n8n serializes arrays as `dimension[0]=x&dimension[1]=y` (indexed), which DHIS2 rejects with a 500. Switched to manual query string construction `dimension=dx:X&dimension=ou:Y&dimension=pe:Z` bypassing `qs` entirely for analytics requests.
 
 ### Added
-- **Enrollment resource** — Create and Get operations via `/api/tracker/enrollments`. Enrollment Create wraps the payload in the Tracker API envelope (`{ enrollments: [...] }`).
-- **FHIR resource** — Read Patient, Search Patients, Create Observation, Search Observations via `/fhir/*`. Requires DHIS2 2.38+ with the FHIR module enabled. Uses the same credential as the REST API.
+- **Event: Create** operation via `/api/tracker`. Wraps the payload in `{ events: [...] }`. Supports program, programStage, orgUnit, occurredAt, status, and dataValues.
+
+---
+
+## [1.1.0] - 2026-06-01
+
+### Added
+- **Enrollment resource** Create and Get operations via `/api/tracker/enrollments`. Create wraps the payload in `{ enrollments: [...] }`.
+- **FHIR resource** Read Patient, Search Patients, Create Observation, Search Observations via `/fhir/*`. Requires DHIS2 2.38+ with the FHIR module enabled.
 
 ---
 
