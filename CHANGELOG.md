@@ -7,10 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.2.1] - 2026-06-09
+
+### Fixed
+- GitHub Actions publish workflow updated: added `--ignore-scripts` to bypass `prepublishOnly` hook, updated action versions to `checkout@v4.2.2` and `setup-node@v4.4.0` for Node.js 24 compatibility, added `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` env var.
+- npm provenance now active, all future releases published via GitHub Actions with cryptographic provenance statement.
+
+---
+
 ## [1.2.0] - 2026-06-02
 
 ### Fixed
-- Analytics `dimension` serialization: n8n serializes arrays as `dimension[0]=x&dimension[1]=y` (indexed), which DHIS2 rejects with a 500. Switched to manual query string construction `dimension=dx:X&dimension=ou:Y&dimension=pe:Z` bypassing `qs` entirely for analytics requests.
+- Analytics `dimension` serialization: n8n serializes arrays as `dimension[0]=x&dimension[1]=y` (indexed), which DHIS2 rejects with a 500. Switched to manual query string construction `dimension=dx:X&dimension=ou:Y&dimension=pe:Z` — bypassing `qs` entirely for analytics requests.
 
 ### Added
 - **Event: Create** operation via `/api/tracker`. Wraps the payload in `{ events: [...] }`. Supports program, programStage, orgUnit, occurredAt, status, and dataValues.
