@@ -4,8 +4,9 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 	IDataObject,
+	JsonObject,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeApiError } from 'n8n-workflow';
 
 export class Dhis2 implements INodeType {
 	usableAsTool = true;
@@ -740,11 +741,10 @@ export class Dhis2 implements INodeType {
 					});
 					continue;
 				}
-				throw new NodeOperationError(
-					this.getNode(),
-					error instanceof Error ? error : new Error(String(error)),
-					{ itemIndex: i },
-				);
+				if (error instanceof NodeApiError) {
+					throw error;
+				}
+				throw new NodeApiError(this.getNode(), error as JsonObject, { itemIndex: i });
 			}
 		}
 
