@@ -568,14 +568,16 @@ export class Dhis2 implements INodeType {
 						const eventId = this.getNodeParameter('eventId', i) as string;
 						endpoint = `/api/tracker/events/${eventId}`;
 					} else if (operation === 'getAll') {
-						endpoint = '/api/tracker/events';
-						qs.program = this.getNodeParameter('eventProgramId', i) as string;
-						qs.orgUnit = this.getNodeParameter('eventOrgUnit', i) as string;
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							qs.pageSize = this.getNodeParameter('limit', i) as number;
-						}
+					endpoint = '/api/tracker/events';
+					qs.program = this.getNodeParameter('eventProgramId', i) as string;
+					qs.orgUnit = this.getNodeParameter('eventOrgUnit', i) as string;
+					const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+					if (!returnAll) {
+						qs.pageSize = this.getNodeParameter('limit', i) as number;
+					} else {
+						qs.paging = 'false';
 					}
+				}
 				}
 
 				// ----------------------------------------------------------------
@@ -697,14 +699,16 @@ export class Dhis2 implements INodeType {
 						const trackedEntityId = this.getNodeParameter('trackedEntityId', i) as string;
 						endpoint = `/api/tracker/trackedEntities/${trackedEntityId}`;
 					} else if (operation === 'getAll') {
-						endpoint = '/api/tracker/trackedEntities';
-						qs.trackedEntityType = this.getNodeParameter('trackedEntityTypeId', i) as string;
-						qs.orgUnit = this.getNodeParameter('trackedEntityOrgUnit', i) as string;
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							qs.pageSize = this.getNodeParameter('limit', i) as number;
-						}
+					endpoint = '/api/tracker/trackedEntities';
+					qs.trackedEntityType = this.getNodeParameter('trackedEntityTypeId', i) as string;
+					qs.orgUnit = this.getNodeParameter('trackedEntityOrgUnit', i) as string;
+					const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+					if (!returnAll) {
+						qs.pageSize = this.getNodeParameter('limit', i) as number;
+					} else {
+						qs.paging = 'false';
 					}
+				}
 				}
 
 				// ----------------------------------------------------------------
